@@ -7,13 +7,14 @@ import java.util.Random;
 
 public class MastermindGame {
     private final JFrame frame;
-    private final JPanel colorSelectionPanel;
-    private final JPanel guessesPanel;
-    private final JButton submitButton;
     private final String[] colors = {"Red", "Blue", "Green", "Yellow", "Orange", "Purple"};
     private final ArrayList<String> secretCode;
     private final ArrayList<JComboBox<String>> colorSelectors;
     private final JTextArea feedbackArea;
+
+    // عدد المحاولات المتبقية
+    private int attempts = 10;
+    private final JLabel attemptsLabel;
 
     public MastermindGame() {
         frame = new JFrame("Mastermind Game");
@@ -23,10 +24,11 @@ public class MastermindGame {
 
         // Generate the secret code
         secretCode = generateSecretCode();
+        System.out.println(secretCode);
 
-        // Top panel for selecting colors
-        colorSelectionPanel = new JPanel();
-        colorSelectionPanel.setLayout(new FlowLayout());
+        // Panel for selecting colors
+        JPanel colorSelectionPanel = new JPanel();
+        colorSelectionPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
         colorSelectors = new ArrayList<>();
         for (int i = 0; i < 4; i++) {
             JComboBox<String> comboBox = new JComboBox<>(colors);
@@ -34,20 +36,29 @@ public class MastermindGame {
             colorSelectionPanel.add(comboBox);
         }
 
+        // Label for displaying attempts left
+        attemptsLabel = new JLabel("Attempts left: " + attempts);
+
+        // Top panel to hold color selection and attempts label
+        JPanel topPanel = new JPanel(new BorderLayout());
+        topPanel.add(colorSelectionPanel, BorderLayout.WEST);
+        topPanel.add(attemptsLabel, BorderLayout.EAST);
+
         // Submit button
-        submitButton = new JButton("Submit Guess");
+        JButton submitButton = new JButton("Submit Guess");
+        submitButton.setPreferredSize(new Dimension(150, 40));
         submitButton.addActionListener(new SubmitGuessListener());
 
         // Panel for displaying guesses and feedback
-        guessesPanel = new JPanel();
-        guessesPanel.setLayout(new BoxLayout(guessesPanel, BoxLayout.Y_AXIS));
         feedbackArea = new JTextArea();
         feedbackArea.setEditable(false);
+        JScrollPane feedbackScrollPane = new JScrollPane(feedbackArea);
+        feedbackScrollPane.setPreferredSize(new Dimension(600, 200));
 
         // Add components to frame
-        frame.add(colorSelectionPanel, BorderLayout.NORTH);
+        frame.add(topPanel, BorderLayout.NORTH);
         frame.add(submitButton, BorderLayout.CENTER);
-        frame.add(new JScrollPane(feedbackArea), BorderLayout.SOUTH);
+        frame.add(feedbackScrollPane, BorderLayout.SOUTH);
 
         frame.setVisible(true);
     }
@@ -64,6 +75,12 @@ public class MastermindGame {
     private class SubmitGuessListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
+            if (attempts <= 0) {
+                JOptionPane.showMessageDialog(frame, "No more attempts left! You lost. The correct code was: " + secretCode);
+                frame.dispose();
+                return;
+            }
+
             ArrayList<String> guess = new ArrayList<>();
             for (JComboBox<String> selector : colorSelectors) {
                 guess.add((String) selector.getSelectedItem());
@@ -72,10 +89,18 @@ public class MastermindGame {
             Feedback feedback = checkGuess(guess);
             feedbackArea.append("Guess: " + guess + "\n");
             feedbackArea.append("Correct Positions: " + feedback.correctPosition + ", Correct Colors: " + feedback.correctColor + "\n");
+            attempts--;
+
+            attemptsLabel.setText("Attempts left: " + attempts);
 
             if (feedback.correctPosition == 4) {
                 JOptionPane.showMessageDialog(frame, "Congratulations! You guessed the code!");
                 frame.dispose();
+            } else if (attempts == 0) {
+                JOptionPane.showMessageDialog(frame, "No more attempts left! You lost. The correct code was: " + secretCode);
+                frame.dispose();
+            } else {
+                feedbackArea.append("Attempts left: " + attempts + "\n\n");
             }
         }
     }
