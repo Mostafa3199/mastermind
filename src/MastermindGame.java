@@ -12,7 +12,6 @@ public class MastermindGame {
     private final ArrayList<JComboBox<String>> colorSelectors;
     private final JTextArea feedbackArea;
 
-    // عدد المحاولات المتبقية
     private int attempts = 10;
     private final JLabel attemptsLabel;
 
@@ -22,11 +21,9 @@ public class MastermindGame {
         frame.setSize(600, 400);
         frame.setLayout(new BorderLayout());
 
-        // Generate the secret code
         secretCode = generateSecretCode();
         System.out.println(secretCode);
 
-        // Panel for selecting colors
         JPanel colorSelectionPanel = new JPanel();
         colorSelectionPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
         colorSelectors = new ArrayList<>();
@@ -39,23 +36,19 @@ public class MastermindGame {
         // Label for displaying attempts left
         attemptsLabel = new JLabel("Attempts left: " + attempts);
 
-        // Top panel to hold color selection and attempts label
         JPanel topPanel = new JPanel(new BorderLayout());
         topPanel.add(colorSelectionPanel, BorderLayout.WEST);
         topPanel.add(attemptsLabel, BorderLayout.EAST);
 
-        // Submit button
         JButton submitButton = new JButton("Submit Guess");
         submitButton.setPreferredSize(new Dimension(150, 40));
         submitButton.addActionListener(new SubmitGuessListener());
 
-        // Panel for displaying guesses and feedback
         feedbackArea = new JTextArea();
         feedbackArea.setEditable(false);
         JScrollPane feedbackScrollPane = new JScrollPane(feedbackArea);
         feedbackScrollPane.setPreferredSize(new Dimension(600, 200));
 
-        // Add components to frame
         frame.add(topPanel, BorderLayout.NORTH);
         frame.add(submitButton, BorderLayout.CENTER);
         frame.add(feedbackScrollPane, BorderLayout.SOUTH);
@@ -112,7 +105,6 @@ public class MastermindGame {
         ArrayList<String> secretCopy = new ArrayList<>(secretCode);
         ArrayList<String> guessCopy = new ArrayList<>(guess);
 
-        // Check for correct positions
         for (int i = 0; i < guess.size(); i++) {
             if (guess.get(i).equals(secretCopy.get(i))) {
                 correctPosition++;
@@ -121,7 +113,6 @@ public class MastermindGame {
             }
         }
 
-        // Check for correct colors
         for (String color : guessCopy) {
             if (color != null && secretCopy.contains(color)) {
                 correctColor++;
